@@ -156,7 +156,20 @@
         });
 
     }
-
+    //新增的关联用户，放到doDelete()函数后面
+    function doAddUser(id) {
+        layer.open({
+            type: 2,
+            title: '编辑：{{structure.name}}',
+            shadeClose: false,
+            maxmin: true,
+            area: ['800px', '600px'],
+            content: ["{% url 'system:basic_structure_add_user' %}" + '?id=' + id, 'no'],
+            end: function () {
+                window.location.reload();
+            }
+        });
+    }
     // 下面是新增的 doUpdate函数，添加在$("#btnCreate")代码段后面。
     function doUpdate(id) {
         layer.open({
