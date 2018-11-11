@@ -14,16 +14,26 @@
                     <legend>
                         <h4>组织架构信息</h4>
                     </legend>
+                    <input type="hidden" name="id" value="{{ structure.id }}" />
                     <div class="form-group has-feedback">
                         <label class="col-sm-2 control-label">名称</label>
                         <div class="col-sm-3">
-                            <input class="form-control" name="name" type="text" />
+                            <input class="form-control" name="name" type="text" value="{{ structure.name|default:''}}"/>
                         </div>
                         <label class="col-sm-2 control-label">类别</label>
                         <div class="col-sm-3">
+                            <!--注释3: 添加option选项，渲染组织架构类型数，组织架构type字段是choices，所以这里想要显示具体内容需要使用get_type_display-->
                             <select class="form-control" name="type">
+
+                            {% if structure %}
+                                <option value={{ structure.type }}> {{ structure.get_type_display }} </option>
+                                {% ifnotequal structure.type 'unit' %}<option value="unit">单位</option>{% endifnotequal %}
+                                {% ifnotequal structure.type 'department' %}<option value="department">部门</option>{% endifnotequal %}
+                            {% else %}
                                 <option value="unit">单位</option>
                                 <option value="department">部门</option>
+                            {% endif %}
+
                             </select>
                         </div>
 
@@ -33,10 +43,22 @@
                         <label class="col-sm-2 control-label">所属</label>
                         <div class="col-sm-3">
                             <select class="form-control" name="parent">
-                                <option></option>
-                                {% for stru in structure_all %}
-                                    <option value={{ stru.id }}> {{ stru.name }} </option>
-                                {% endfor %}
+                            <!--注释4：新增option，parent是组织架构外键，保存到数据库里的是parent_id, 显示在页面上的是structure.parent.name-->
+                                    <option value="">无所属</option>
+                                        {# 判断下是否有structure变量也就是判断是否是编辑操作 #}
+
+                                    {% if structure %}
+                                        <option value={{ structure.parent_id|default_if_none:"" }}> {{ structure.parent.name|default:"" }}
+                                        {% for stru in structure_all %}
+                                        {% ifnotequal  structure.parent_id stru.id%}<option value={{ stru.id }}> {{ stru.name }} </option>{% endifnotequal %}
+                                        {% endfor %}
+{#                                        为了友好显示，如果不是编辑操作就遍历全部，如果是就把当前的在list中去除就不会有重复项了#}
+                                    {% else %}
+                                        {% for stru in structure_all %}
+                                        <option value={{ stru.id }}> {{ stru.name }} </option>
+                                        {% endfor %}
+                                    {% endif %}
+
                             </select>
                         </div>
                     </div>
